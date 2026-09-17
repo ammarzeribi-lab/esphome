@@ -337,6 +337,7 @@ CONFIG_SCHEMA = cv.Schema({
     for s in SENSORS
 }).extend({
     cv.Optional(s[CONF_KEY], default={}): switch.switch_schema(
+        hayward_ns.HaywardSwitch,
         icon=s.get(CONF_ICON, ""),
         device_class=s.get(CONF_DEVICE_CLASS, ""),
         entity_category=s.get(CONF_ENTITY_CATEGORY, "")
@@ -356,7 +357,7 @@ CONFIG_SCHEMA = cv.Schema({
     })
     for s in NUMBERS
 }).extend({
-    cv.Optional(s[CONF_KEY], default={}): climate.CLIMATE_SCHEMA.extend(cv.COMPONENT_SCHEMA).extend(
+    cv.Optional(s[CONF_KEY], default={}): climate.climate_schema(hayward_ns.HaywardClimate).extend(cv.COMPONENT_SCHEMA).extend(
         {
         cv.Optional(CONF_ID, default=s.get(CONF_KEY, "")): cv.declare_id(hayward_ns.HaywardClimate),
         cv.Optional(CONF_NAME, default=s.get(CONF_NAME, "")): cv.string,
