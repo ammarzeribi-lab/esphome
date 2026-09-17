@@ -30,7 +30,7 @@ void HaywardHour::control(float value) {
 
 climate::ClimateTraits HaywardClimate::traits() {
   climate::ClimateTraits traits{};
-  traits.set_supports_current_temperature(true);
+  traits.add_feature_flags(climate::CLIMATE_SUPPORTS_CURRENT_TEMPERATURE);
   traits.set_supported_modes({
     climate::CLIMATE_MODE_OFF,
     climate::CLIMATE_MODE_HEAT,
