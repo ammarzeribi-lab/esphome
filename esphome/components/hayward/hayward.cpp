@@ -289,7 +289,9 @@ void Hayward::set_register(uint16_t address, uint16_t value) {
     int index = (address - HAYWARD_SETTINGS_START_ADDRESS) * 2;
     this->settings_registers_[index] = value >> 8;
     this->settings_registers_[index + 1] = value & 0xFF;
+    this->pending_settings_[address] = value;
     this->has_settings_update_ = true;
+    ESP_LOGI(TAG, "Commande en attente : registre %d -> %d", address, value);
   }
   else if (address >= HAYWARD_EXTRA_SETTINGS_START_ADDRESS && address <= HAYWARD_EXTRA_SETTINGS_END_ADDRESS) {
     if (!this->has_extra_settings_aquired_) {
@@ -305,19 +307,16 @@ void Hayward::set_register(uint16_t address, uint16_t value) {
     this->extra_settings_registers_[index + 1] = value & 0xFF;
     this->has_extra_settings_update = true;
   }
-  this->settings_registers_[index + 1] = value & 0xFF;
-    this->pending_settings_[address] = value;
-    this->has_settings_update_ = true;
-    ESP_LOGI(TAG, "Commande en attente : registre %d -> %d", address, value);
-  }
-  else if (address >= HAYWARD_EXTRA_SETTINGS_START_ADDRESS
+  else if (address >= HAYWARD_STATUS_START_ADDRESS && address <= HAYWARD_STATUS_END_ADDRESS) {
+    int index = (address - HAYWARD_STATUS_START_ADDRESS) * 2;
+    this->status_registers_[index] = value >> 8;
+    this->status_registers_[index + 1] = value & 0xFF;
   }
   else {
     ESP_LOGW(TAG, "Cannot set register %d to %d", address, value);
     return;
   }
 }
-
 int16_t Hayward::get_register(uint16_t address) {
   int16_t value = 0;
   uint8_t lsb = 0;
