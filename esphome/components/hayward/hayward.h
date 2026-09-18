@@ -8,6 +8,7 @@
 #include "esphome/components/climate/climate.h"
 #include "esphome/components/homeassistant/time/homeassistant_time.h"
 #include <vector>
+#include <map>
 
 namespace esphome {
 namespace hayward {
@@ -146,6 +147,7 @@ class Hayward : public modbus::ModbusServer, public Component {
 
   std::array<uint8_t, 180> diagnostics_registers_;
   std::array<uint8_t, 180> settings_registers_;
+  std::map<uint16_t, uint16_t> pending_settings_;
   std::array<uint8_t, 180> extra_settings_registers_;
   std::array<uint8_t, 60> status_registers_;
   std::vector<uint8_t> status_error_response_ = {0x83, 0x04}; // Modbus exception response
