@@ -188,6 +188,18 @@ void Hayward::on_write_registers(uint16_t start_address, uint16_t bytes, const u
         ++it;
       }
     }
+    if (this->pending_settings_.empty()) {
+      this->pending_retries_ = 0;
+    } else {
+      this->pending_retries_++;
+      if (this->pending_retries_ >= 3) {
+        ESP_LOGW(TAG, "Commande toujours non appliquee : relance complete du dialogue");
+        this->pending_retries_ = 0;
+        this->has_settings_aquired_ = false;
+        this->has_extra_settings_aquired_ = false;
+        this->signature_valid_ = false;
+      }
+    }
     this->update_settings_entities();
   }
   else if ((start_address == HAYWARD_EXTRA_SETTINGS_START_ADDRESS) &&
