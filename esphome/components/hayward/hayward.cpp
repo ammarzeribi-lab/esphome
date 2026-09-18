@@ -233,7 +233,7 @@ void Hayward::on_read_registers(uint16_t start_address, uint16_t count, bool is_
     if (this->has_settings_update_ && this->signature_valid_) {
       // Sur certaines cartes meres, le drapeau HAS_SETTINGS_UPDATES est ignore.
       // On utilise NEEDS_UPDATES, qui declenche bien la lecture de nos registres.
-      this->set_register(HAYWARD_UPDATE_FLAGS_REGISTER, HAYWARD_NEEDS_UPDATES);
+      this->set_register(HAYWARD_UPDATE_FLAGS_REGISTER, HAYWARD_HAS_SETTINGS_UPDATES);
       ESP_LOGI(TAG, "Commande en attente : demande de lecture a la carte mere");
     }
     
