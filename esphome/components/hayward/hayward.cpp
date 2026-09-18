@@ -172,6 +172,22 @@ void Hayward::on_write_registers(uint16_t start_address, uint16_t bytes, const u
       format_hex_pretty(this->settings_registers_.data(), bytes).c_str());
     this->has_settings_aquired_ = true;
     this->has_settings_update_ = false;
+    for (auto it = this->pending_settings_.begin(); it != this->pending_settings_.end(); ) {
+      uint16_t addr = it->first;
+      uint16_t wanted = it->second;
+      uint16_t got = (uint16_t) this->get_register(addr);
+      if (got == wanted) {
+        ESP_LOGI(TAG, "Commande confirmee par la PAC : registre %d = %d", addr, wanted);
+        it = this->pending_settings_.erase(it);
+      } else {
+        ESP_LOGW(TAG, "Commande non prise en compte (registre %d : voulu %d, recu %d) -> nouvel envoi", addr, wanted, got);
+        int index = (addr - HAYWARD_SETTINGS_START_ADDRESS) * 2;
+        this->settings_registers_[index] = wanted >> 8;
+        this->settings_registers_[index + 1] = wanted & 0xFF;
+        this->has_settings_update_ = true;
+        ++it;
+      }
+    }
     this->update_settings_entities();
   }
   else if ((start_address == HAYWARD_EXTRA_SETTINGS_START_ADDRESS) &&
@@ -289,10 +305,12 @@ void Hayward::set_register(uint16_t address, uint16_t value) {
     this->extra_settings_registers_[index + 1] = value & 0xFF;
     this->has_extra_settings_update = true;
   }
-  else if (address >= HAYWARD_STATUS_START_ADDRESS && address <= HAYWARD_STATUS_END_ADDRESS) {
-    int index = (address - HAYWARD_STATUS_START_ADDRESS) * 2;
-    this->status_registers_[index] = value >> 8;
-    this->status_registers_[index + 1] = value & 0xFF;
+  this->settings_registers_[index + 1] = value & 0xFF;
+    this->pending_settings_[address] = value;
+    this->has_settings_update_ = true;
+    ESP_LOGI(TAG, "Commande en attente : registre %d -> %d", address, value);
+  }
+  else if (address >= HAYWARD_EXTRA_SETTINGS_START_ADDRESS
   }
   else {
     ESP_LOGW(TAG, "Cannot set register %d to %d", address, value);
