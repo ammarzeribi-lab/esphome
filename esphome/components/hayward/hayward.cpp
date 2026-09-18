@@ -224,7 +224,7 @@ void Hayward::on_read_registers(uint16_t start_address, uint16_t count, bool is_
       this->set_register(HAYWARD_UPDATE_FLAGS_REGISTER, HAYWARD_NEEDS_UPDATES);
       ESP_LOGI(TAG, "Commande en attente : demande de lecture a la carte mere");
     }
-    }
+    
     else if (this->has_extra_settings_update && this->signature_valid_) {
       this->set_register(HAYWARD_UPDATE_FLAGS_REGISTER, HAYWARD_HAS_EXTRA_SETTINGS_UPDATES);
     }
